@@ -5,6 +5,7 @@ import { ColumnsType } from 'antd/lib/table';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../redux/store';
 import { setSearchText } from '../../redux/reducers/searchTextSlice';
+import { useNavigate } from 'react-router-dom';
 import styles from './index.module.scss'
 
 interface Coin {
@@ -20,6 +21,7 @@ const CoinTable: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const searchText = useSelector((state: RootState) => state.search.searchText);
     const { data, error, isLoading } = useGetCoinsQuery('https://api.coincap.io/v2/assets');
+    const navigate = useNavigate();
 
     useEffect(() => {
         if (data) {
@@ -45,6 +47,10 @@ const CoinTable: React.FC = () => {
             !isNaN(changePercent)
         );
     });
+
+    const handleRowClick = (record: Coin) => {
+        navigate(`/coin/${record.id}`);
+    };
 
     const columns: ColumnsType<Coin> = [
         {
@@ -108,6 +114,9 @@ const CoinTable: React.FC = () => {
                     rowKey="id"
                     pagination={{ pageSize: 10 }}
                     className={styles.table}
+                    onRow={(record) => ({
+                        onClick: () => handleRowClick(record),
+                    })}
                 />
             ) : (
                 <Alert message="Нет данных" description="Данные для отображения отсутствуют." type="info" showIcon />
