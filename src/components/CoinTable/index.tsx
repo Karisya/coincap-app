@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect } from 'react';
 import { Table, Button, Spin, Alert, Input } from 'antd';
 import { useGetCoinsQuery } from '../../api/coinApi';
 import { ColumnsType } from 'antd/lib/table';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../redux/store';
 import { setSearchText } from '../../redux/reducers/searchTextSlice';
+import styles from './index.module.scss'
 
 interface Coin {
     id: string;
@@ -92,8 +93,9 @@ const CoinTable: React.FC = () => {
     ];
 
     return (
-        <div>
+        <div className={styles.coinTable} >
             <Input.Search
+                className={styles.search}
                 placeholder="Поиск по названию монеты"
                 enterButton="Поиск"
                 onSearch={(value) => dispatch(setSearchText(value))}
@@ -105,6 +107,7 @@ const CoinTable: React.FC = () => {
                     dataSource={filteredData}
                     rowKey="id"
                     pagination={{ pageSize: 10 }}
+                    className={styles.table}
                 />
             ) : (
                 <Alert message="Нет данных" description="Данные для отображения отсутствуют." type="info" showIcon />
