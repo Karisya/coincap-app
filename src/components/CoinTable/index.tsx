@@ -1,4 +1,4 @@
-import React, {useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { Table, Button, Spin, Alert, Input } from 'antd';
 import { useGetCoinsQuery } from '../../api/coinApi';
 import { ColumnsType } from 'antd/lib/table';
@@ -99,7 +99,7 @@ const CoinTable: React.FC = () => {
                 placeholder="Поиск по названию монеты"
                 enterButton="Поиск"
                 onSearch={(value) => dispatch(setSearchText(value))}
-                
+
             />
             {filteredData ? (
                 <Table

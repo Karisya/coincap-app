@@ -10,17 +10,18 @@
     margin-bottom: 20px;
 }
 
-.table{
+.table {
     text-align: center;
-        @media(max-width:600px) {
-        
-                min-width: 900px;
-                min-height: 600px;
-                ul{
-                    text-align: right;
-                    right: 0;
-                    justify-content: start;
-                }
-            }
-}
 
+    @media(max-width:600px) {
+
+        min-width: 900px;
+        min-height: 600px;
+
+        ul {
+            text-align: right;
+            right: 0;
+            justify-content: start;
+        }
+    }
+}

@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
-import CoinTable from '.';
+import CoinTable from '../components/CoinTable';
 import { Provider } from 'react-redux';
-import { store } from '../../redux/store'; 
+import { store } from '../redux/store';
 
 export default {
     title: 'CoinTable',
@@ -9,8 +9,8 @@ export default {
 } as Meta;
 
 const Template: StoryObj = (args) => (
-    <Provider store= { store } >
-    <CoinTable { ...args } />
+    <Provider store={store} >
+        <CoinTable {...args} />
     </Provider>
 );
 
