@@ -1,9 +1,15 @@
+// src/redux/store.ts
+
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import { coinApi } from '../api/coinApi';
+import searchReducer from './reducers/searchTextSlice';
+import timeFrameReducer from './reducers/timeFrameSlice';
 
 const rootReducer = combineReducers({
     [coinApi.reducerPath]: coinApi.reducer,
+    search: searchReducer,
+    timeFrame: timeFrameReducer,
 });
 
 export const store = configureStore({
