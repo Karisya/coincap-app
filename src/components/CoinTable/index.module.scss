@@ -1,15 +1,26 @@
 .coinTable {
     padding: 30px 40px;
     text-align: center;
-
+    overflow: auto;
 }
 
 .search {
     max-width: 900px;
     margin: 0 auto;
+    margin-bottom: 20px;
 }
 
 .table{
     text-align: center;
+        @media(max-width:600px) {
+        
+                min-width: 900px;
+                min-height: 600px;
+                ul{
+                    text-align: right;
+                    right: 0;
+                    justify-content: start;
+                }
+            }
 }
 

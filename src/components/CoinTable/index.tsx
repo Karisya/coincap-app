@@ -99,7 +99,7 @@ const CoinTable: React.FC = () => {
                 placeholder="Поиск по названию монеты"
                 enterButton="Поиск"
                 onSearch={(value) => dispatch(setSearchText(value))}
-                style={{ marginBottom: 16 }}
+                
             />
             {filteredData ? (
                 <Table
