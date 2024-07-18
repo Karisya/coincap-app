@@ -29,7 +29,11 @@ const CoinTable: React.FC = () => {
         }
     }, [data]);
 
-    if (isLoading) return <Spin size="large" />;
+    if (isLoading) return (
+        <div className={styles.loading}>
+            <Spin size="large" />;
+        </div>
+    )
     if (error) return <Alert message="Ошибка" description="Не удалось загрузить данные" type="error" showIcon />;
 
     const filteredData = data?.data.filter((coin: Coin) => {
