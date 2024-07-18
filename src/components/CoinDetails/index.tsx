@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { setTimeFrame } from '../../redux/reducers/timeFrameSlice'
 import { CategoryScale, Chart, LinearScale, LineElement, PointElement, Title, Tooltip, Legend } from 'chart.js';
+import styles from './index.module.scss'
 
 Chart.register(CategoryScale, LinearScale, LineElement, PointElement, Title, Tooltip, Legend);
 
@@ -50,7 +51,11 @@ const CoinDetails: React.FC<CoinDetailsProps> = () => {
     const timeFrame = useSelector((state: RootState) => state.timeFrame.timeFrame);
     const { data, error, isLoading } = useGetCoinByIdQuery(id);
 
-    if (isLoading) return <Spin size="large" />;
+    if (isLoading) return (
+        <div className={styles.loading}>
+            <Spin  size="large" />;
+        </div >)
+
     if (error) return <Alert message="Ошибка" description="Не удалось загрузить данные" type="error" showIcon />;
 
     if (!data) {
@@ -61,21 +66,32 @@ const CoinDetails: React.FC<CoinDetailsProps> = () => {
     const chartData = getChartData(coin, timeFrame);
 
     return (
-        <div>
-            <Link to="/">Вернуться назад</Link>
-            <img src={`https://assets.coincap.io/assets/icons/${coin.symbol.toLowerCase()}@2x.png`} alt={coin.name} width="50" />
-            <h1>{coin.name} ({coin.symbol})</h1>
-            <p>Rank: {coin.rank}</p>
-            <p>Supply: {coin.supply}</p>
-            <p>Цена в USD: ${parseFloat(coin.priceUsd).toFixed(2)}</p>
-            <p>Рыночная капитализация в USD: ${parseFloat(coin.marketCapUsd).toFixed(2)}</p>
-            <p>Max Supply: {coin.maxSupply}</p>
-            <Select value={timeFrame} onChange={(value) => dispatch(setTimeFrame(value))} style={{ width: 120 }}>
-                <Option value="day">День</Option>
-                <Option value="12hours">12 часов</Option>
-                <Option value="1hour">1 час</Option>
-            </Select>
-            <Line data={chartData} />
+        <div className={styles.coinDetails}>
+            <div className={styles.coinDetailsBack}>
+                <Link to="/">Вернуться назад</Link>
+            </div>
+            <div className={styles.coinDetailsHolder}>
+                <div>
+                    <div className={styles.coinDetailsTitle}>
+                        <img src={`https://assets.coincap.io/assets/icons/${coin.symbol.toLowerCase()}@2x.png`} alt={coin.name} width="50" />
+                        <h1>{coin.name} ({coin.symbol})</h1>
+                    </div>
+                    <p>Rank: {coin.rank}</p>
+                    <p>Supply: {coin.supply}</p>
+                    <p>Цена в USD: ${parseFloat(coin.priceUsd).toFixed(2)}</p>
+                    <p>Рыночная капитализация в USD: ${parseFloat(coin.marketCapUsd).toFixed(2)}</p>
+                    <p>Max Supply: {coin.maxSupply}</p>
+                    <Select value={timeFrame} onChange={(value) => dispatch(setTimeFrame(value))} style={{ width: 120 }}>
+                        <Option value="day">День</Option>
+                        <Option value="12hours">12 часов</Option>
+                        <Option value="1hour">1 час</Option>
+                    </Select>
+
+                </div>
+
+                <Line className={styles.coinDetailsChart} data={chartData} />
+            </div>
+
         </div>
     );
 };
