@@ -1,22 +1,22 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useGetCoinByIdQuery } from '../../api/coinApi';
-import { Spin, Alert, Select } from 'antd';
+import { Spin, Alert, Select, Button, Modal, InputNumber } from 'antd';
 import { Line } from 'react-chartjs-2';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
-import { setTimeFrame } from '../../redux/reducers/timeFrameSlice'
+import { setTimeFrame } from '../../redux/reducers/timeFrameSlice';
 import { CategoryScale, Chart, LinearScale, LineElement, PointElement, Title, Tooltip, Legend } from 'chart.js';
-import { ChartOptions } from '../../types/types';
-import { CoinDetailsProps } from '../../types/types';
-import styles from './index.module.scss'
-
+import { ChartOptions, CoinDetailsProps } from '../../types/types';
+import { addCoin } from '../../redux/reducers/portfolioSlice';
+import { setQuantity } from '../../redux/reducers/quantitySlice';
+import { showQuantityModal, hideQuantityModal, showPortfolioModal, hidePortfolioModal } from '../../redux/reducers/modalVisibilitySlice';
+import PortfolioValue from '../PortfolioValue';
+import styles from './index.module.scss';
 
 Chart.register(CategoryScale, LinearScale, LineElement, PointElement, Title, Tooltip, Legend);
 
 const { Option } = Select;
-
-
 
 const getChartData = (coin: any, timeFrame: ChartOptions) => {
     let labels: string[] = [];
@@ -50,12 +50,42 @@ const CoinDetails: React.FC<CoinDetailsProps> = () => {
     const { id } = useParams<{ id: string }>();
     const dispatch = useDispatch();
     const timeFrame = useSelector((state: RootState) => state.timeFrame.timeFrame);
+    const quantity = useSelector((state: RootState) => state.quantity.quantity);
+    const quantityModalVisible = useSelector((state: RootState) => state.modalVisible.quantityModalVisible);
+    const portfolioModalVisible = useSelector((state: RootState) => state.modalVisible.portfolioModalVisible);
+    const portfolio = useSelector((state: RootState) => state.portfolio.coins);
+    
     const { data, error, isLoading } = useGetCoinByIdQuery(id);
+
+    const handleAddToPortfolio = () => {
+        dispatch(showQuantityModal());
+    };
+
+    const handleConfirmAddToPortfolio = () => {
+        if (data) {
+            const coinData = data.data;
+            if (coinData && coinData.id && coinData.priceUsd) {
+                dispatch(addCoin({ coin: coinData, quantity }));
+                dispatch(hideQuantityModal());
+                dispatch(showPortfolioModal());
+                dispatch(setQuantity(1));
+            }
+        }
+    };
+
+    const handleCancelQuantityModal = () => {
+        dispatch(hideQuantityModal());
+    };
+
+    const handleClosePortfolioModal = () => {
+        dispatch(hidePortfolioModal());
+    };
 
     if (isLoading) return (
         <div className={styles.loading}>
-            <Spin size="large" />;
-        </div >)
+            <Spin size="large" />
+        </div>
+    );
 
     if (error) return <Alert message="Ошибка" description="Не удалось загрузить данные" type="error" showIcon />;
 
@@ -87,12 +117,51 @@ const CoinDetails: React.FC<CoinDetailsProps> = () => {
                         <Option value="12hours">12 часов</Option>
                         <Option value="1hour">1 час</Option>
                     </Select>
-
+                    <Button onClick={handleAddToPortfolio}>Добавить в портфель</Button>
                 </div>
 
                 <Line className={styles.coinDetailsChart} data={chartData} />
             </div>
 
+            <Modal
+                title="Введите количество монет"
+                visible={quantityModalVisible}
+                onCancel={handleCancelQuantityModal}
+                footer={[
+                    <Button key="cancel" onClick={handleCancelQuantityModal}>
+                        Отмена
+                    </Button>,
+                    <Button key="confirm" type="primary" onClick={handleConfirmAddToPortfolio}>
+                        Добавить
+                    </Button>,
+                ]}
+            >
+                <p>Введите количество монет для добавления в портфель:</p>
+                <InputNumber
+                    min={1}
+                    max={1000}
+                    value={quantity}
+                    onChange={(value) => dispatch(setQuantity(value as number))}
+                    style={{ width: '100%' }}
+                />
+            </Modal>
+
+            <Modal
+                title="Список монет в портфеле"
+                visible={portfolioModalVisible}
+                onCancel={handleClosePortfolioModal}
+                footer={[
+                    <Button key="close" onClick={handleClosePortfolioModal}>
+                        Закрыть
+                    </Button>,
+                ]}
+            >
+                {portfolio.length > 0 ? (
+                    <PortfolioValue />
+                ) : (
+                    <p>Ваш портфель пуст</p>
+                )}
+            </Modal>
         </div>
     );
 };
