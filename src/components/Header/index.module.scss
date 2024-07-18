@@ -1,0 +1,17 @@
+.header {
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #b7b7b7;
+}
+
+.popularCoins {
+    display: flex;
+    gap: 10px;
+}
+
+.portfolioValue {
+    font-weight: bold;
+}

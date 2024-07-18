@@ -1,5 +1,3 @@
-// src/redux/slices/timeFrameSlice.ts
-
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 type ChartOptions = 'day' | '12hours' | '1hour';
