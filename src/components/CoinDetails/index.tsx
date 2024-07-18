@@ -7,15 +7,16 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
 import { setTimeFrame } from '../../redux/reducers/timeFrameSlice'
 import { CategoryScale, Chart, LinearScale, LineElement, PointElement, Title, Tooltip, Legend } from 'chart.js';
+import { ChartOptions } from '../../types/types';
+import { CoinDetailsProps } from '../../types/types';
 import styles from './index.module.scss'
+
 
 Chart.register(CategoryScale, LinearScale, LineElement, PointElement, Title, Tooltip, Legend);
 
 const { Option } = Select;
 
-interface CoinDetailsProps { }
 
-type ChartOptions = 'day' | '12hours' | '1hour';
 
 const getChartData = (coin: any, timeFrame: ChartOptions) => {
     let labels: string[] = [];
@@ -53,7 +54,7 @@ const CoinDetails: React.FC<CoinDetailsProps> = () => {
 
     if (isLoading) return (
         <div className={styles.loading}>
-            <Spin  size="large" />;
+            <Spin size="large" />;
         </div >)
 
     if (error) return <Alert message="Ошибка" description="Не удалось загрузить данные" type="error" showIcon />;

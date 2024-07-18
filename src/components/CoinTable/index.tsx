@@ -6,16 +6,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../redux/store';
 import { setSearchText } from '../../redux/reducers/searchTextSlice';
 import { useNavigate } from 'react-router-dom';
+import { Coin } from '../../types/types';
 import styles from './index.module.scss'
-
-interface Coin {
-    id: string;
-    symbol: string;
-    name: string;
-    priceUsd: string;
-    marketCapUsd: string;
-    changePercent24Hr: string;
-}
 
 const CoinTable: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
