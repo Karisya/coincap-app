@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useGetCoinByIdQuery } from '../../api/coinApi';
-import { Spin, Alert, Select, Button, Modal, InputNumber } from 'antd';
+import { Spin, Alert, Select} from 'antd';
 import { Line } from 'react-chartjs-2';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
@@ -12,6 +12,9 @@ import { addCoin } from '../../redux/reducers/portfolioSlice';
 import { setQuantity } from '../../redux/reducers/quantitySlice';
 import { showQuantityModal, hideQuantityModal, showPortfolioModal, hidePortfolioModal } from '../../redux/reducers/modalVisibilitySlice';
 import PortfolioValue from '../PortfolioValue';
+import Button from '../../common/Button';
+import Modal from '../../common/Modal';
+import { InputNumber } from '../../common/Input';
 import styles from './index.module.scss';
 
 Chart.register(CategoryScale, LinearScale, LineElement, PointElement, Title, Tooltip, Legend);

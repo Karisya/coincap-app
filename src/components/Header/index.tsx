@@ -2,12 +2,14 @@ import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState, AppDispatch } from '../../redux/store';
 import { Coin } from '../../types/types';
-import { Modal, Button, Table } from 'antd';
+import { Table } from 'antd';
 import { removeCoin } from '../../redux/reducers/portfolioSlice';
 import { fetchPopularCoins } from '../../redux/reducers/popularCoinsSlice';
 import { showModal, hideModal } from '../../redux/reducers/modalSlice';
-import styles from './index.module.scss';
 import PortfolioValue from '../PortfolioValue';
+import Modal from '../../common/Modal';
+import Button from '../../common/Button';
+import styles from './index.module.scss';
 
 const Header: React.FC = () => {
     const portfolio = useSelector((state: RootState) => state.portfolio.coins);

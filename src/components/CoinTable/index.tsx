@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Table, Button, Spin, Alert, Input, Modal, InputNumber } from 'antd';
+import { Table,Spin, Alert} from 'antd';
 import { useGetCoinsQuery } from '../../api/coinApi';
 import { ColumnsType } from 'antd/lib/table';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,6 +11,9 @@ import { setSelectedCoin, clearSelectedCoin } from '../../redux/reducers/selecte
 import { showQuantityModal, hideQuantityModal, } from '../../redux/reducers/modalVisibilitySlice';
 import { setQuantity } from '../../redux/reducers/quantitySlice';
 import { Coin } from '../../types/types';
+import Button from '../../common/Button';
+import Modal from '../../common/Modal';
+import { InputNumber, Input } from '../../common/Input';
 import styles from './index.module.scss';
 
 const CoinTable: React.FC = () => {
