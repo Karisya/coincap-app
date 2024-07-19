@@ -74,7 +74,7 @@ const Header: React.FC = () => {
                 <div className={styles.popularCoins}>
                     {popularCoins.map(coin => (
                         <div key={coin.id}>
-                            {coin.name}: ${parseFloat(coin.priceUsd).toFixed(2)}
+                            {coin.name}: <span className={styles.coinPrice}>${parseFloat(coin.priceUsd).toFixed(2)}</span>
                         </div>
                     ))}
                 </div>
