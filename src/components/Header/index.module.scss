@@ -5,13 +5,38 @@
     display: flex;
     justify-content: space-between;
     border-bottom: 1px solid #b7b7b7;
+
+    @media(max-width:900px) {
+        h3 {
+            font-size: 16px;
+        }
+    }
+
+    @media(max-width:767px) {
+        flex-direction: column;
+    }
+    
+    
 }
 
 .popularCoins {
     display: flex;
     gap: 10px;
+
+    @media(max-width:767px) {
+        justify-content: center;
+    }
+
 }
 
 .portfolioValue {
     font-weight: bold;
+}
+
+.modal{
+
+        @media(max-width:500px) {
+            display: flex;
+            }
+
 }

@@ -90,6 +90,7 @@ const Header: React.FC = () => {
                 visible={isModalVisible}
                 onOk={handleHideModal}
                 onCancel={handleHideModal}
+                className={styles.modal}
             >
                 <Table columns={columns} dataSource={portfolio} rowKey="coin.id" pagination={false} />
             </Modal>
