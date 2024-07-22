@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useGetCoinByIdQuery } from '../../api/coinApi';
-import { Spin, Alert, Select} from 'antd';
+import { Spin, Alert, Select } from 'antd';
 import { Line } from 'react-chartjs-2';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../redux/store';
@@ -21,21 +21,7 @@ Chart.register(CategoryScale, LinearScale, LineElement, PointElement, Title, Too
 
 const { Option } = Select;
 
-const getChartData = (coin: any, timeFrame: ChartOptions) => {
-    let labels: string[] = [];
-    let dataPoints: number[] = [];
-
-    if (timeFrame === 'day') {
-        labels = ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'];
-        dataPoints = [100, 150, 120, 170, 160, 180];
-    } else if (timeFrame === '12hours') {
-        labels = ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00'];
-        dataPoints = [50, 70, 60, 80, 75, 85];
-    } else if (timeFrame === '1hour') {
-        labels = ['00:00', '00:15', '00:30', '00:45', '01:00'];
-        dataPoints = [10, 12, 15, 14, 16];
-    }
-
+const getChartData = (labels: string[], dataPoints: number[]) => {
     return {
         labels: labels,
         datasets: [
@@ -49,6 +35,31 @@ const getChartData = (coin: any, timeFrame: ChartOptions) => {
     };
 };
 
+const fetchHistoryData = async (coinId: string, timeFrame: ChartOptions) => {
+    const now = new Date();
+    let interval: string;
+    let start: number;
+
+    if (timeFrame === 'day') {
+        interval = 'm15';
+        start = now.setDate(now.getDate() - 1);
+    } else if (timeFrame === '12hours') {
+        interval = 'm5';
+        start = now.setHours(now.getHours() - 12);
+    } else if (timeFrame === '1hour') {
+        interval = 'm1';
+        start = now.setHours(now.getHours() - 1);
+    } else {
+        throw new Error('Unsupported time frame');
+    }
+
+    const url = `https://api.coincap.io/v2/assets/${coinId}/history?interval=${interval}&start=${start}&end=${Date.now()}`;
+    const response = await fetch(url);
+    const data = await response.json();
+
+    return data.data;
+};
+
 const CoinDetails: React.FC<CoinDetailsProps> = () => {
     const { id } = useParams<{ id: string }>();
     const dispatch = useDispatch();
@@ -57,8 +68,20 @@ const CoinDetails: React.FC<CoinDetailsProps> = () => {
     const quantityModalVisible = useSelector((state: RootState) => state.modalVisible.quantityModalVisible);
     const portfolioModalVisible = useSelector((state: RootState) => state.modalVisible.portfolioModalVisible);
     const portfolio = useSelector((state: RootState) => state.portfolio.coins);
-    
+
     const { data, error, isLoading } = useGetCoinByIdQuery(id);
+
+    const [chartData, setChartData] = useState<any>({ labels: [], datasets: [] });
+
+    useEffect(() => {
+        if (data && id) {
+            fetchHistoryData(id, timeFrame).then(historyData => {
+                const labels = historyData.map((entry: any) => new Date(entry.time).toLocaleTimeString());
+                const dataPoints = historyData.map((entry: any) => parseFloat(entry.priceUsd));
+                setChartData(getChartData(labels, dataPoints));
+            });
+        }
+    }, [data, id, timeFrame]);
 
     const handleAddToPortfolio = () => {
         dispatch(showQuantityModal());
@@ -97,7 +120,6 @@ const CoinDetails: React.FC<CoinDetailsProps> = () => {
     }
 
     const coin = data.data;
-    const chartData = getChartData(coin, timeFrame);
 
     return (
         <div className={styles.coinDetails}>
