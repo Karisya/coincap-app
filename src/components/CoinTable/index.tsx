@@ -1,14 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Table,Spin, Alert} from 'antd';
-import { useGetCoinsQuery } from '../../api/coinApi';
-import { ColumnsType } from 'antd/lib/table';
+import { Table, Spin, Alert } from 'antd';
+import { ColumnsType } from 'antd/es/table';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState, AppDispatch } from '../../redux/store';
 import { setSearchText } from '../../redux/reducers/searchTextSlice';
 import { addCoin } from '../../redux/reducers/portfolioSlice';
 import { setSelectedCoin, clearSelectedCoin } from '../../redux/reducers/selectedCoinSlice';
-import { showQuantityModal, hideQuantityModal, } from '../../redux/reducers/modalVisibilitySlice';
+import { showQuantityModal, hideQuantityModal } from '../../redux/reducers/modalVisibilitySlice';
 import { setQuantity } from '../../redux/reducers/quantitySlice';
 import { Coin } from '../../types/types';
 import Button from '../../common/Button';
@@ -19,26 +18,41 @@ import styles from './index.module.scss';
 const CoinTable: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
     const searchText = useSelector((state: RootState) => state.search.searchText);
-    const { data, error, isLoading } = useGetCoinsQuery('https://api.coincap.io/v2/assets');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize] = useState(10);
+    const [totalCoins, setTotalCoins] = useState(0);
+    const [coins, setCoins] = useState<Coin[]>([]);
     const navigate = useNavigate();
     const quantityModalVisible = useSelector((state: RootState) => state.modalVisible.quantityModalVisible);
     const selectedCoin = useSelector((state: RootState) => state.selectedCoin.coin);
     const quantity = useSelector((state: RootState) => state.quantity.quantity);
 
     useEffect(() => {
-        if (data) {
-            console.log(data);
-        }
-    }, [data]);
+        const fetchCoins = async () => {
+            try {
+                const response = await fetch(`https://api.coincap.io/v2/assets?limit=${pageSize}&offset=${(currentPage - 1) * pageSize}`);
+                const result = await response.json();
+                setCoins(result.data);
+                const totalResponse = await fetch('https://api.coincap.io/v2/assets');
+                const totalResult = await totalResponse.json();
+                setTotalCoins(totalResult.data.length);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
 
-    if (isLoading) return (
-        <div className={styles.loading}>
-            <Spin size="large" />
-        </div>
-    );
-    if (error) return <Alert message="Ошибка" description="Не удалось загрузить данные" type="error" showIcon />;
+        fetchCoins();
+    }, [currentPage, pageSize]);
 
-    const filteredData = data?.data.filter((coin: Coin) => {
+    if (!coins.length) {
+        return (
+            <div className={styles.loading}>
+                <Spin size="large" />
+            </div>
+        );
+    }
+
+    const filteredData = coins.filter((coin: Coin) => {
         const price = parseFloat(coin.priceUsd);
         const marketCap = parseFloat(coin.marketCapUsd);
         const changePercent = parseFloat(coin.changePercent24Hr);
@@ -59,14 +73,14 @@ const CoinTable: React.FC = () => {
     };
 
     const handleOpenAddModal = (record: Coin, e: React.MouseEvent) => {
-        e.stopPropagation(); // Prevent row click from firing
+        e.stopPropagation();
         dispatch(setQuantity(1));
-        dispatch(setSelectedCoin(record)); // Set the selected coin in the Redux store
+        dispatch(setSelectedCoin(record));
         dispatch(showQuantityModal());
     };
 
     const handleCloseAddModal = () => {
-        dispatch(clearSelectedCoin()); // Clear the selected coin in the Redux store
+        dispatch(clearSelectedCoin());
         dispatch(hideQuantityModal());
     };
 
@@ -125,6 +139,10 @@ const CoinTable: React.FC = () => {
         },
     ];
 
+    const handlePageChange = (page: number) => {
+        setCurrentPage(page);
+    };
+
     return (
         <div className={styles.coinTable}>
             <Input.Search
@@ -133,13 +151,18 @@ const CoinTable: React.FC = () => {
                 enterButton="Поиск"
                 onSearch={(value) => dispatch(setSearchText(value))}
             />
-            {filteredData ? (
+            {filteredData.length > 0 ? (
                 <>
                     <Table
                         columns={columns}
                         dataSource={filteredData}
                         rowKey="id"
-                        pagination={{ pageSize: 10 }}
+                        pagination={{
+                            current: currentPage,
+                            pageSize: pageSize,
+                            total: totalCoins,
+                            onChange: handlePageChange,
+                        }}
                         className={styles.table}
                         onRow={(record) => ({
                             onClick: () => handleRowClick(record),
@@ -168,7 +191,7 @@ const CoinTable: React.FC = () => {
                     </Modal>
                 </>
             ) : (
-                <Alert message="Нет данных" description="Данные для отображения отсутствуют." type="info" showIcon />
+                <Alert message="Нет данных" description="Данные для отображения отсутствуют." />
             )}
         </div>
     );
