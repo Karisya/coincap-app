@@ -4,6 +4,7 @@ import { Coin } from '../../types/types';
 export interface PortfolioCoin {
     coin: Coin;
     quantity: number;
+    purchasePriceUsd: number; 
 }
 
 interface PortfolioState {
@@ -17,7 +18,7 @@ const loadPortfolioFromLocalStorage = (): PortfolioCoin[] => {
             const parsedData = JSON.parse(data);
             if (Array.isArray(parsedData)) {
                 return parsedData.filter((item): item is PortfolioCoin =>
-                    item && item.coin && typeof item.quantity === 'number'
+                    item && item.coin && typeof item.quantity === 'number' && typeof item.purchasePriceUsd === 'number'
                 );
             }
         } catch (e) {
@@ -35,12 +36,19 @@ const portfolioSlice = createSlice({
     name: 'portfolio',
     initialState,
     reducers: {
-        addCoin: (state, action: PayloadAction<PortfolioCoin>) => {
-            const existingCoin = state.coins.find(pc => pc.coin.id === action.payload.coin.id);
+        addCoin: (state, action: PayloadAction<{ coin: Coin; quantity: number }>) => {
+            const { coin, quantity } = action.payload;
+            const purchasePriceUsd = parseFloat(coin.priceUsd);
+            const existingCoin = state.coins.find(pc => pc.coin.id === coin.id);
+
             if (existingCoin) {
-                existingCoin.quantity += action.payload.quantity;
+                existingCoin.quantity += quantity;
             } else {
-                state.coins.push(action.payload);
+                state.coins.push({
+                    coin,
+                    quantity,
+                    purchasePriceUsd,
+                });
             }
             localStorage.setItem('portfolio', JSON.stringify(state.coins));
         },
