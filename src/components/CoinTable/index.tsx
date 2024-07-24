@@ -9,7 +9,7 @@ import { addCoin } from '../../redux/reducers/portfolioSlice';
 import { setSelectedCoin, clearSelectedCoin } from '../../redux/reducers/selectedCoinSlice';
 import { showQuantityModal, hideQuantityModal } from '../../redux/reducers/modalVisibilitySlice';
 import { setQuantity } from '../../redux/reducers/quantitySlice';
-import { setCurrentPage, setPageSize, setTotalCoins } from '../../redux/reducers/paginationSlice';
+import { setCurrentPage, setTotalCoins } from '../../redux/reducers/paginationSlice';
 import { setCoins } from '../../redux/reducers/coinsSlice';
 import { Coin } from '../../types/types';
 import Button from '../../common/Button';
@@ -22,7 +22,6 @@ const CoinTable: React.FC = () => {
 
     const searchText = useSelector((state: RootState) => state.search.searchText);
     const currentPage = useSelector((state: RootState) => state.pagination.currentPage);
-    const pageSize = useSelector((state: RootState) => state.pagination.pageSize);
     const totalCoins = useSelector((state: RootState) => state.pagination.totalCoins);
     const coins = useSelector((state: RootState) => state.coins.coins);
     const quantityModalVisible = useSelector((state: RootState) => state.modalVisible.quantityModalVisible);
@@ -34,8 +33,8 @@ const CoinTable: React.FC = () => {
     useEffect(() => {
         const fetchCoins = async () => {
             try {
-                const limit = 10; // Set limit to 10
-                const offset = (currentPage - 1) * 10; // Calculate offset based on the current page
+                const limit = 10; 
+                const offset = (currentPage - 1) * 10; 
 
                 const response = await fetch(`https://api.coincap.io/v2/assets?limit=${limit}&offset=${offset}`);
                 const result = await response.json();
@@ -170,7 +169,7 @@ const CoinTable: React.FC = () => {
                         rowKey="id"
                         pagination={{
                             current: currentPage,
-                            pageSize: 10, // Set pageSize to 10
+                            pageSize: 10,
                             total: totalCoins,
                             onChange: handlePageChange,
                         }}
