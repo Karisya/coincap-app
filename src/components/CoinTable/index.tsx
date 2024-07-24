@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Table, Spin, Alert } from 'antd';
 import { ColumnsType } from 'antd/es/table';
@@ -9,6 +9,8 @@ import { addCoin } from '../../redux/reducers/portfolioSlice';
 import { setSelectedCoin, clearSelectedCoin } from '../../redux/reducers/selectedCoinSlice';
 import { showQuantityModal, hideQuantityModal } from '../../redux/reducers/modalVisibilitySlice';
 import { setQuantity } from '../../redux/reducers/quantitySlice';
+import { setCurrentPage, setPageSize, setTotalCoins } from '../../redux/reducers/paginationSlice';
+import { setCoins } from '../../redux/reducers/coinsSlice';
 import { Coin } from '../../types/types';
 import Button from '../../common/Button';
 import Modal from '../../common/Modal';
@@ -17,32 +19,41 @@ import styles from './index.module.scss';
 
 const CoinTable: React.FC = () => {
     const dispatch = useDispatch<AppDispatch>();
+
     const searchText = useSelector((state: RootState) => state.search.searchText);
-    const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize] = useState(10);
-    const [totalCoins, setTotalCoins] = useState(0);
-    const [coins, setCoins] = useState<Coin[]>([]);
-    const navigate = useNavigate();
+    const currentPage = useSelector((state: RootState) => state.pagination.currentPage);
+    const pageSize = useSelector((state: RootState) => state.pagination.pageSize);
+    const totalCoins = useSelector((state: RootState) => state.pagination.totalCoins);
+    const coins = useSelector((state: RootState) => state.coins.coins);
     const quantityModalVisible = useSelector((state: RootState) => state.modalVisible.quantityModalVisible);
     const selectedCoin = useSelector((state: RootState) => state.selectedCoin.coin);
     const quantity = useSelector((state: RootState) => state.quantity.quantity);
 
+    const navigate = useNavigate();
+
     useEffect(() => {
         const fetchCoins = async () => {
             try {
-                const response = await fetch(`https://api.coincap.io/v2/assets?limit=${pageSize}&offset=${(currentPage - 1) * pageSize}`);
+                const limit = 10; // Set limit to 10
+                const offset = (currentPage - 1) * 10; // Calculate offset based on the current page
+
+                const response = await fetch(`https://api.coincap.io/v2/assets?limit=${limit}&offset=${offset}`);
                 const result = await response.json();
-                setCoins(result.data);
-                const totalResponse = await fetch('https://api.coincap.io/v2/assets');
-                const totalResult = await totalResponse.json();
-                setTotalCoins(totalResult.data.length);
+                dispatch(setCoins(result.data));
+                console.log(result.data)
+
+                if (totalCoins === 0) {
+                    const totalResponse = await fetch('https://api.coincap.io/v2/assets');
+                    const totalResult = await totalResponse.json();
+                    dispatch(setTotalCoins(totalResult.data.length));
+                }
             } catch (error) {
                 console.error('Error fetching data:', error);
             }
         };
 
         fetchCoins();
-    }, [currentPage, pageSize]);
+    }, [currentPage, dispatch, totalCoins]);
 
     if (!coins.length) {
         return (
@@ -140,7 +151,7 @@ const CoinTable: React.FC = () => {
     ];
 
     const handlePageChange = (page: number) => {
-        setCurrentPage(page);
+        dispatch(setCurrentPage(page));
     };
 
     return (
@@ -159,7 +170,7 @@ const CoinTable: React.FC = () => {
                         rowKey="id"
                         pagination={{
                             current: currentPage,
-                            pageSize: pageSize,
+                            pageSize: 10, // Set pageSize to 10
                             total: totalCoins,
                             onChange: handlePageChange,
                         }}
